@@ -1,14 +1,36 @@
 import React from 'react';
 import {useForm} from 'react-hook-form'
-const Form = ({setData,setToggle}) => {
-    const {register,formState:{errors},reset,handleSubmit} = useForm({
-        mode:"onChange"
-    })
-    const handleForm = (data)=>{
-        reset();
-         setToggle((prev)=>!prev)
-        setData((prev)=>[...prev,data])
+import { nanoid } from "nanoid";
+const Form = ({ setData, setToggle, users,update,setUpdate }) => {
+  const {
+    register,
+    formState: { errors },
+    reset,
+    handleSubmit,
+  } = useForm({
+    mode: "onChange",
+    defaultValues:update
+  });
+  
+  const handleForm = (data) => {
+    if(update.id){
+      setData((prev)=>{
+        return prev.map((val)=>{
+          return val.id === update.id ? {...data,id:update.id}:val
+        })
+      })
+      
+      
+    }else{
+      let arr = [...users, { ...data, id: nanoid() }];
+      setData(() => arr);
+      localStorage.setItem("data", JSON.stringify(arr));
     }
+      
+    setToggle((prev) => !prev);
+    setUpdate(null)
+    reset();
+  };
 
   return (
     <div className="min-h-screen w-full bg-amber-800 flex items-center justify-center p-5">
@@ -70,10 +92,11 @@ const Form = ({setData,setToggle}) => {
           placeholder="Enter profile pic URL"
           className="border border-gray-300 rounded-lg px-4 py-3 outline-none focus:border-amber-700"
         />
-        {errors.Image && <p className="text-red-500"> {errors.Image.message}</p>}
+        {errors.Image && (
+          <p className="text-red-500"> {errors.Image.message}</p>
+        )}
 
         <button
-      
           type="submit"
           className="bg-amber-800 text-white py-3 rounded-lg font-semibold hover:bg-amber-900 transition"
         >
@@ -82,6 +105,6 @@ const Form = ({setData,setToggle}) => {
       </form>
     </div>
   );
-}
+};
 
 export default Form
